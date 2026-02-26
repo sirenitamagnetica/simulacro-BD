@@ -46,3 +46,6 @@ try{ // aqui se empieza a construir las tablas
     console.error("Error starting server:", error);
     process.exit(1);
 }
+
+
+startApp();
