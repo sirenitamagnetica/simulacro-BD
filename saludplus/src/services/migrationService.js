@@ -32,7 +32,7 @@ export async function migrate(clearBefore = false) {
             await pool.query('BEGIN'); // Empieza una transacción (Paquete de seguridad).
             await pool.query(`TRUNCATE TABLE patients, 
                 treatments, insurances_providers, specialitys,
-                doctors, appointments CASCADE`);
+                doctors, appointments CASCADE`); 
              // TRUNCATE: "Borra absolutamente todo el contenido de estas tablas".
             // CASCADE: "Si borras un paciente, borra también sus citas automáticamente para que no queden huerfanas".
             await pool.query('COMMIT'); // Guarda el borrado.
@@ -117,7 +117,7 @@ console.log('Iniciando el proceso de guardado...');
             if (!treatmentCodes.has(row.treatment_code)) {
                 await pool.query( // Espera a que pool termine de hacer .query()" espera que la conexion a la base de datos termine la consulta 
                     'INSERT INTO treatments (code, description, cost) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING',
-                    [row.treatment_code, row.treatment_description, row.treatment_cost]
+                    [row.treatment_code, row.treatment_description, parseInt(row.treatment_cost)] // parceInt es para pasar a numero entero 
                 );
                 treatmentCodes.add(row.treatment_code);
             }
@@ -156,7 +156,7 @@ console.log('Iniciando el proceso de guardado...');
             // Ahora sí, insertamos la cita con todos los IDs correctos.
             await pool.query(
                 `INSERT INTO appointments (id, date, patient_id, doctor_id, treatment_code, insurance_provider_id, amount_paid) 
-                VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT DO NOTHING`,
+                VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT DO NOTHING`,  // marcadores de posicion $1 $2 las posiciones empiezan desde el uno 
                 [
                     row.appointment_id, 
                     row.appointment_date, 
@@ -216,3 +216,8 @@ SQL
 
 SELECT count(*) FROM appointments; */
 
+
+
+// Despues de la migracion y hacer todo esto voy   a crear la migracion de mongodb
+
+//Insert mongo 
