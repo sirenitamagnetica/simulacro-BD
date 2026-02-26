@@ -26,6 +26,9 @@ export async function createTables(){
             description TEXT NOT NULL,
             cost INTEGER NOT NULL)`);
         
+
+
+
         // ── insurances_providers ──
         await client.query(`CREATE TABLE IF NOT EXISTS insurances_providers (
             id SERIAL PRIMARY KEY,
@@ -35,8 +38,8 @@ export async function createTables(){
         
         // ── specialitys ──
         await client.query(`CREATE TABLE IF NOT EXISTS specialitys (
-               id SERIAL PRIMARY KEY,
-               name VARCHAR(50) NOT NULL UNIQUE)`);
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(50) NOT NULL UNIQUE)`);
         
         // ── doctors ──
         await client.query(`CREATE TABLE IF NOT EXISTS doctors (
@@ -60,7 +63,6 @@ export async function createTables(){
         await client.query(`CREATE INDEX IF NOT EXISTS idx_appointments_doctor ON appointments(doctor_id)`);
         await client.query(`CREATE INDEX IF NOT EXISTS idx_appointments_treatment ON appointments(treatment_code)`);
         await client.query(`CREATE INDEX IF NOT EXISTS idx_appointments_insurance ON appointments(insurance_provider_id)`);
-
         await client.query('COMMIT');   // Si llegamos aquí sin errores, se graban todos los cambios de un solo golpe.
 
         console.log('Tables created successfully');

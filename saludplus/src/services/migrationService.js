@@ -78,13 +78,13 @@ console.log('Iniciando el proceso de guardado...');
 
     // --- PASO A: ESPECIALIDADES ---
             // Revisamos si el nombre de la especialidad (ej: 'Pediatría') ya está en nuestro saquito.
-            if (!specialtyNames.has(row.specialty_name)) { // si no(!) esta guardada la especialidad guardala 
+            if (!specialtyNames.has(row.specialty)) { // si no(!) esta guardada la especialidad guardala 
                 await pool.query( // pool Es como un mensajero que lleva consultas a la base de datos y trae respuesta  .query() Ejecuta esta consulta SQL en la base de datos"
                     'INSERT INTO specialitys (name) VALUES ($1) ON CONFLICT DO NOTHING',
-                    [row.specialty_name]
+                    [row.specialty]
                 );
                 // La guardamos en el saquito para que, si otra fila tiene la misma especialidad, no intente insertarla de nuevo.
-                specialtyNames.add(row.specialty_name);
+                specialtyNames.add(row.specialty);
             }
 
 
@@ -93,7 +93,7 @@ console.log('Iniciando el proceso de guardado...');
             if (!doctorEmails.has(row.doctor_email)) {
                 // IMPORTANTE: Como la tabla de doctores pide un 'speciality_id' (un número), 
                 // primero le preguntamos a Postgres: "¿Qué ID le pusiste a la especialidad X?".
-                const specRes = await pool.query('SELECT id FROM specialitys WHERE name = $1', [row.specialty_name]);
+                const specRes = await pool.query('SELECT id FROM specialitys WHERE name = $1', [row.specialty]);
                 const specId = specRes.rows[0].id; // Guardamos ese número en 'specId'.
 
                 await pool.query( // pool es la conexion a la base de datos .query es una consulta "Espera a que la base de datos termine la consulta antes de seguir"
@@ -123,12 +123,12 @@ console.log('Iniciando el proceso de guardado...');
             }
     
     // --- PASO E: SEGUROS (PROVIDERS) ---
-            if (!insuranceNames.has(row.insurance_name)) {
+            if (!insuranceNames.has(row.insurance_provider)) {
                 await pool.query(
                     'INSERT INTO insurances_providers (name, coverage_percentage) VALUES ($1, $2) ON CONFLICT DO NOTHING',
-                    [row.insurance_name, row.insurance_coverage]
+                    [row.insurance_provider, row.coverage_percentage]
                 );
-                insuranceNames.add(row.insurance_name);
+                insuranceNames.add(row.insurance_provider);
             }
 
     // --- PASO F: LA CITA (APPOINTMENTS) ---
@@ -150,13 +150,13 @@ console.log('Iniciando el proceso de guardado...');
             const dId = dRes.rows[0].id;
 
             // 3. Buscamos el ID del seguro usando su nombre
-            const iRes = await pool.query('SELECT id FROM insurances_providers WHERE name = $1', [row.insurance_name]);
+            const iRes = await pool.query('SELECT id FROM insurances_providers WHERE name = $1', [row.insurance_provider]);
             const iId = iRes.rows[0].id;
 
             // Ahora sí, insertamos la cita con todos los IDs correctos.
             await pool.query(
                 `INSERT INTO appointments (id, date, patient_id, doctor_id, treatment_code, insurance_provider_id, amount_paid) 
-                 VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT DO NOTHING`,
+                VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT DO NOTHING`,
                 [
                     row.appointment_id, 
                     row.appointment_date, 
