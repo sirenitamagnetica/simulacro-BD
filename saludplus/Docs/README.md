@@ -1,101 +1,106 @@
-# 🏥 SISTEMA DE MIGRACIÓN DE SALUD PLUS
-### Arquitectura Dual: PostgreSQL + MongoDB + Express API
+Entendido, Andrea. Aquí tienes el README.md con la estructura profesional que pediste, separando completamente el bloque de inglés del bloque de español para que sea mucho más claro de leer.
+Markdown
 
-Este proyecto implementa un flujo completo de **ETL** (Extract, Transform, Load) para procesar datos médicos desde un archivo CSV hacia dos motores de base de datos simultáneos, exponiendo la información mediante una **API REST**.
+# 🏥 HealthPlus - Database Migration Project
+---
+
+## 🇺🇸 ENGLISH VERSION
+
+### 📋 Description
+This project implements a complete ETL (Extract, Transform, Load) process. It migrates 100 medical records from a CSV file into two different database systems: PostgreSQL for relational data and MongoDB for document-based clinical histories.
 
 ---
 
-##  ENDPOINTS DE LA API (Pruebas en Postman)
+### 📂 Project Structure
 
-Una vez que el servidor esté corriendo, puedes usar estas URLs en **Postman**:
+#### 1. Root Directory
+* **`package.json`**: Manages project metadata and dependencies like Express, Mongoose, and PG.
+* **`.env`**: Stores environment variables and sensitive database credentials.
+* **`README.md`**: Provides professional documentation and instructions.
 
-* **Listar Pacientes (PostgreSQL):**
-    `GET http://localhost:3000/api/patients`
-    *Devuelve los datos estructurados y normalizados de la tabla SQL.*
+#### 2. Data Folder (`/data`)
+* **`datos.csv`**: The source file containing 100 raw medical records to be processed.
 
-* **Listar Historiales (MongoDB):**
-    `GET http://localhost:3000/api/histories`
-    *Devuelve los documentos NoSQL con historiales médicos anidados.*
-
----
-
-##  TECNOLOGÍAS Y HERRAMIENTAS
-* **Backend:** Node.js con Express.js.
-* **Base de Datos Relacional:** PostgreSQL (Normalización de tablas).
-* **Base de Datos NoSQL:** MongoDB (Esquemas de documentos complejos).
-* **Gestión de Datos:** `csv-parse` para lectura de archivos planos.
-* **Testing:** Postman Desktop Agent.
+#### 3. Source Code (`/src`)
+* **`/config`**:
+    * `postgres.js`: Handles the connection to PostgreSQL and initializes relational tables.
+    * `mongodb.js`: Handles the connection to MongoDB and defines the document schemas.
+* **`/services`**:
+    * `migrationService.js`: The core logic that reads the CSV and distributes data to both databases.
+* **`server.js`**: The entry point that initializes the migration and starts the Express API server.
 
 ---
 
-## BITÁCORA DE COMANDOS (Guía de ejecución)
+### 🛠️ Technical Requirements & Workflow
 
+1. **Data Ingestion**: Using `csv-parse` to read and stream the local CSV file.
+2. **SQL Persistence**: Normalizing data into tables (Patients, Doctors, Appointments) in PostgreSQL.
+3. **NoSQL Persistence**: Transforming flat data into nested JSON documents for MongoDB.
+4. **API Rest**: Exposing the data through web routes using Express.js.
 
+---
 
-### 1. Gestión de Versiones (Git)
-Durante el desarrollo se utilizaron los siguientes comandos para el control de versiones:
+### 📡 API Endpoints
+* **PostgreSQL Data:** `GET http://localhost:3000/api/patients`
+* **MongoDB Data:** `GET http://localhost:3000/api/histories`
 
-```bash
-# Iniciar el repositorio
-git init
+---
 
-# Preparar y guardar cambios
-git add .
-git commit -m "Instalación de Express y configuración de servidor"
+### 💻 Git Commands
+* `git init`: To initialize the repository.
+* `git add .`: To stage all files.
+* `git commit -m "message"`: To save the progress.
 
-# Verificar estado
-git status
-git log --oneline
+---
+---
 
+## 🇪🇸 VERSIÓN EN ESPAÑOL
 
+### 📋 Descripción
+Este proyecto implementa un proceso ETL (Extraer, Transformar, Cargar) completo. Migra 100 registros médicos desde un archivo CSV hacia dos sistemas de bases de datos diferentes: PostgreSQL para datos relacionales y MongoDB para historiales clínicos basados en documentos.
 
-## Configuración del Entorno
+---
 
-### Instalación de dependencias necesarias
-npm install express pg mongoose dotenv csv-parse
+### 📂 Estructura del Proyecto
 
-# Entrar a la carpeta del proyecto
-cd saludplus
+#### 1. Directorio Raíz
+* **`package.json`**: Gestiona los metadatos y dependencias del proyecto (Express, Mongoose, PG).
+* **`.env`**: Almacena variables de entorno y credenciales sensibles de la base de datos.
+* **`README.md`**: Proporciona documentación profesional e instrucciones.
 
+#### 2. Carpeta de Datos (`/data`)
+* **`datos.csv`**: El archivo fuente que contiene los 100 registros médicos en bruto.
 
+#### 3. Código Fuente (`/src`)
+* **`/config`**:
+    * `postgres.js`: Gestiona la conexión a PostgreSQL e inicializa las tablas relacionales.
+    * `mongodb.js`: Gestiona la conexión a MongoDB y define los esquemas de documentos.
+* **`/services`**:
+    * `migrationService.js`: Lógica central que lee el CSV y distribuye los datos a ambas bases de datos.
+* **`server.js`**: Punto de entrada que inicia la migración y levanta el servidor de la API Express.
 
+---
 
-## Ejecución del Servidor
+### 🛠️ Requerimientos Técnicos y Flujo de Trabajo
 
-# Iniciar migración y levantar API
-npm start
+1. **Ingesta de Datos**: Uso de `csv-parse` para leer y transmitir el archivo CSV local.
+2. **Persistencia SQL**: Normalización de datos en tablas (Pacientes, Doctores, Citas) en PostgreSQL.
+3. **Persistencia NoSQL**: Transformación de datos planos en documentos JSON anidados para MongoDB.
+4. **API Rest**: Exposición de los datos mediante rutas web utilizando Express.js.
 
+---
 
-## ESTRUCTURA DEL PROYECTO 
+### 📡 Endpoints de la API
+* **Datos PostgreSQL:** `GET http://localhost:3000/api/patients`
+* **Datos MongoDB:** `GET http://localhost:3000/api/histories`
 
-saludplus/
-├── data/
-│   └── datos.csv           # Fuente de datos original (100 registros)
-├── src/
-│   ├── config/
-│   │   ├── postgres.js     # Conexión y creación de tablas SQL
-│   │   └── mongodb.js      # Conexión y Modelos NoSQL (Mongoose)
-│   ├── services/
-│   │   └── migrationService.js # Lógica de transformación y carga
-│   └── server.js           # Express API y puntos de entrada
-├── .env                    # Variables de entorno (Privado)
-├── package.json            # Scripts y dependencias
-└── README.md               # Documentación profesional
+---
 
+### 💻 Comandos de Git
+* `git init`: Para inicializar el repositorio.
+* `git add .`: Para preparar todos los archivos.
+* `git commit -m "mensaje"`: Para guardar el progreso.
 
-
-
-## CONFIGURACIÓN DE VARIABLES (.env)
-
-# Para conectar las bases de datos, el archivo .env debe tener esta estructura:
-DB_USER=tu_usuario
-DB_HOST=localhost
-DB_PASSWORD=tu_clave
-DB_NAME=saludplus
-DB_PORT=5432
-MONGO_URI=mongodb://localhost:27017/saludplus
-
-
-
-Desarrollado por: Andrea Lizcano BY riwi
-Fecha: Febrero 2026
+---
+**Desarrollado por:** Andrea Lizcano  
+**Estado:** Finalizado - 2026
