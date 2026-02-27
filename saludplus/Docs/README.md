@@ -1,5 +1,4 @@
-Entendido, Andrea. Aquí tienes el README.md con la estructura profesional que pediste, separando completamente el bloque de inglés del bloque de español para que sea mucho más claro de leer.
-Markdown
+
 
 # 🏥 HealthPlus - Database Migration Project
 ---
