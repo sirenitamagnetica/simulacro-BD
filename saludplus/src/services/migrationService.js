@@ -10,6 +10,7 @@ import { resolve } from 'path';         // Ayuda a encontrar la "dirección" exa
 import { parse } from 'csv-parse/sync'; // El "traductor" que convierte el texto del CSV en una lista de objetos.
 import { pool } from '../config/postgres.js'; // // La conexión a Postgres que explicamos antes.
 import { env } from '../config/env.js'; // // El objeto con la ruta del archivo CSV.
+import { PatientHistory } from '../config/mongodb.js';
 
 // LOCALIZAR Y LEER LOS ARCHIVOS CSV 
 export async function migrate(clearBefore = false) {
@@ -172,14 +173,8 @@ console.log('Iniciando el proceso de guardado...');
         console.log(' ¡Proceso terminado! Todos los datos únicos del CSV están ahora en Postgres.');
 
     
-    }
 
 
-catch(error){
-        console.error("Error migrating data:", error);
-        throw error;
-    }
-}
 
 
 /* La funcion de este bloque de codigo fue transformar un archivo de texto desordenado (csv) a una base de datos organizada y segura (postgreSQL)
@@ -220,4 +215,48 @@ SELECT count(*) FROM appointments; */
 
 // Despues de la migracion y hacer todo esto voy   a crear la migracion de mongodb
 
-//Insert mongo 
+        console.log("-----------------------------------------");
+        console.log("INICIANDO MIGRACION A MONGO");
+        console.log("-----------------------------------------");
+
+
+// Creamos un mapa para juntar las citas por cada paciente (Email único)
+const patientMap = new Map();
+
+rows.forEach(row => {
+    if (!patientMap.has(row.patient_email)) {
+        patientMap.set(row.patient_email, {
+            patientName: row.patient_name,
+            patientEmail: row.patient_email,
+            appointments: []
+        });
+    }
+    
+    // Metemos la cita dentro del paciente correspondiente
+    patientMap.get(row.patient_email).appointments.push({
+        appointmentId: row.appointment_id,
+        date: row.appointment_date,
+        doctorName: row.doctor_name,
+        doctorEmail: row.doctor_email,
+        specialty: row.specialty,
+        treatmentCode: row.treatment_code,
+        treatmenDescription: row.treatment_description,
+        treatmentCost: parseFloat(row.treatment_cost),
+        insuranceProvider: row.insurance_provider,
+        coveragePercentage: parseFloat(row.coverage_percentage),
+        amountPaid: parseFloat(row.amount_paid)
+    });
+});
+
+// 2. Guardamos en MongoDB
+console.log("Enviando datos a MongoDB...");
+await PatientHistory.deleteMany({}); // Limpia para no duplicar
+await PatientHistory.insertMany(Array.from(patientMap.values()));
+
+console.log(" ¡Sincronización con MongoDB completada!");
+
+}catch(error){
+        console.error("Error migrating data:", error);
+        throw error;
+    }
+} //ESTA LLAVE cierra la función 'migrate'

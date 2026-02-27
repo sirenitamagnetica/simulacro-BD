@@ -1,51 +1,59 @@
-//es el Director de Orquesta.
-//  Su única misión es dar las órdenes en el orden correcto para que el programa arranque.
-// Es el que dice: "Primero conecten las bases de datos y luego enciendan al recepcionista (app)".
+// 1. IMPORTACIONES
+import { createTables } from "./config/postgres.js";
+import { connectMongo } from "./config/mongodb.js"; // <--- CAMBIO: Debes importar la conexión de Mongo
+import { migrate } from "./services/migrationService.js";
 
 
-import { createTables } from "./config/postgres.js";  // Trae los planos para construir las tablas.
-//import app from "./app.js"; 
-//import { env } from "./config/env.js";
-import { migrate } from "./services/migrationService.js";  // Trae al equipo que mueve los datos del CSV.
+/**
+ * 2. CAMBIO PRINCIPAL: Envolvemos todo en una función 'async'
+ * ¿Por qué? Porque intentabas llamar a startApp() al final, pero no habías
+ * agrupado tu código bajo ese nombre. Además, necesitamos 'async' para usar 'await'.
+ */
+async function startApp() {
+    try { 
+        // PASO A: PostgreSQL
+        console.log("Connecting to postgres...");
+        await createTables(); 
+        console.log(" Connected to postgres successfully");
+        
+        /**
+         * 3. AGREGAR ESTO: Conexión a MongoDB
+         * ¿Por qué? Si no llamas a connectMongo(), tu base de datos NoSQL 
+         * estará "apagada" para este programa.
+         */
+        console.log("Connecting to MongoDB...");
+        await connectMongo(); 
+        console.log(" Connected to MongoDB successfully");
 
+        // PASO B: Migración
+        console.log("Migrating data...");
+        /**
+         * 4. NOTA: Asegúrate de que en tu migrationService.js 
+         * la función se llame 'migrate'. Si se llama 'migrateData', cámbialo aquí.
+         */
+        await migrate(true); 
+        console.log("Data migrated successfully");
 
-/* 
-El Bloque de Seguridad (try...catch)
+        console.log("-----------------------------------------");
+        console.log("SISTEMA INICIADO Y DATOS SINCRONIZADOS");
+        console.log("-----------------------------------------");
 
-Todo el proceso está envuelto en un try { ... } catch.
-
-    try: "Intenta hacer todo esto".
-
-    catch: "Si algo falla en cualquier paso, detente y dime qué pasó".
-
-    process.exit(1): Si hay un error grave (como que no haya conexión a internet o a la base de datos), 
-    esta línea apaga el programa por completo para no causar daños.
-*/
-try{ // aqui se empieza a construir las tablas 
-    console.log("Connecting to postgres...");
-    await createTables(); // Llama a la función (la de los CREATE TABLE). y el await le pide que espere que no pase a la siguiente linea hasta que las tablas no esten creadas 
-    console.log("Connected to postgres successfully");
-    
-
-    //Mudanza de Datos (Migración)
-    console.log("Migrating data...");
-    await migrate(true); // el clearBefore de migrationService.js  Al ponerle true aquí, le estás diciendo: "Cada vez que encienda el programa, borra lo que había antes y carga el CSV desde cero". Así siempre tienes datos limpios para tus pruebas.
-    console.log("Data migrated successfully");
-
-    /* 
-    se usa para encender un servidor web. al tener  estos archivos listos el siguiente paso es ejecutarlo. En tu terminal de la uni deberías escribir algo como:
-    node src/services.js 
-    */ 
-
-    /* app.listen(env.port, () => {
-        console.log(`Server running on port ${env.port}`);
-    }); */  
-
-
-}catch(error){
-    console.error("Error starting server:", error);
-    process.exit(1);
+    } catch (error) {
+        /**
+         * 5. MANEJO DE ERRORES
+         * Si Postgres o Mongo fallan, el código saltará aquí directamente.
+         */
+        console.error(" Error starting server:", error);
+        process.exit(1);
+    }
 }
 
-
+/**
+ * 6. LA LLAMADA
+ * Ahora sí, como ya definimos la función arriba con el nombre 'startApp',
+ * esta línea ya no te dará el error rojo de "ReferenceError".
+ */
 startApp();
+
+
+       
